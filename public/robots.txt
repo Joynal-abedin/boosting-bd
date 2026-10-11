@@ -1,0 +1,7 @@
+# robots.txt for BOOSTING BD
+# Production website: https://boostingagencyofficial.site/
+
+User-agent: *
+Allow: /
+
+Sitemap: https://boostingagencyofficial.site/sitemap.xml
