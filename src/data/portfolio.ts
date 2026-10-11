@@ -36,7 +36,7 @@ export const portfolioCaseStudies: CaseStudy[] = [
       "Short-form video hook testing across Facebook Reels & Instagram Feed",
       "Exclusion of previous 30-day buyers to protect ad budget"
     ],
-    imageSrc: "/src/assets/images/ecommerce_growth_mockup_1791719557359.jpg",
+    imageSrc: "/images/ecommerce-growth-mockup.jpg",
     imageAlt: "E-commerce advertising campaign and analytics review setup",
   },
   {
@@ -54,7 +54,7 @@ export const portfolioCaseStudies: CaseStudy[] = [
       "Geographic radius targeting around major metropolitan centers (Dhaka & Chittagong)",
       "Daily manual lead pacing aligned with sales counselor shift hours"
     ],
-    imageSrc: "/src/assets/images/meta_campaign_strategy_1791719546836.jpg",
+    imageSrc: "/images/meta-campaign-strategy.jpg",
     imageAlt: "Marketing strategist reviewing lead generation campaign performance",
   },
   {
@@ -72,7 +72,7 @@ export const portfolioCaseStudies: CaseStudy[] = [
       "Messenger click-to-chat bot handling common warranty queries",
       "Frequency capped to 2.2 impressions per user per week"
     ],
-    imageSrc: "/src/assets/images/hero_meta_ads_dashboard_1791719532130.jpg",
+    imageSrc: "/images/hero-meta-ads-dashboard.jpg",
     imageAlt: "Performance marketing dashboard displaying advertising analytics",
   },
 ];

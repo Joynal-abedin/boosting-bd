@@ -1,8 +1,8 @@
 # BOOSTING BD — Meta Ads & Digital Marketing Agency Website
 
-A high-performance, accessible, and conversion-focused static website built for **BOOSTING BD**, a digital marketing and Meta (Facebook & Instagram) advertising agency headquartered in Dhaka, Bangladesh.
+A high-performance, accessible, and conversion-focused multi-page website built for **BOOSTING BD**, a premier digital marketing and Meta (Facebook & Instagram) advertising agency headquartered in Dhaka, Bangladesh.
 
-Engineered with React 19, TypeScript, Tailwind CSS, and Vite, specifically optimized for static deployment on **Cloudflare Pages** and source control via **GitHub**.
+Engineered with React 19, TypeScript, Tailwind CSS, React Router, and Vite, specifically optimized for static deployment on **Cloudflare Pages** and source control via **GitHub**.
 
 ---
 
@@ -15,17 +15,12 @@ Engineered with React 19, TypeScript, Tailwind CSS, and Vite, specifically optim
 5. [Prerequisites](#prerequisites)
 6. [Local Development](#local-development)
 7. [Production Build](#production-build)
-8. [Configuration & Customization Guide](#configuration--customization-guide)
-   - [Editing Brand & Contact Details](#editing-brand--contact-details)
-   - [Editing Services](#editing-services)
-   - [Editing Pricing & Retainers](#editing-pricing--retainers)
-   - [Editing Case Studies & Images](#editing-case-studies--images)
-   - [Updating SEO Metadata & Domain](#updating-seo-metadata--domain)
-9. [Deployment Guide: GitHub & Cloudflare Pages](#deployment-guide-github--cloudflare-pages)
+8. [Cloudflare Pages Deployment Configuration](#cloudflare-pages-deployment-configuration)
    - [Step 1: Pushing Code to GitHub](#step-1-pushing-code-to-github)
    - [Step 2: Connecting to Cloudflare Pages](#step-2-connecting-to-cloudflare-pages)
-   - [Step 3: Setting Up a Custom Domain](#step-3-setting-up-a-custom-domain)
-10. [Forms & WhatsApp Integration Details](#forms--whatsapp-integration-details)
+   - [Step 3: Custom Domain Setup](#step-3-custom-domain-setup)
+9. [Serverless Edge Function (`/api/contact`)](#serverless-edge-function-apicontact)
+10. [Configuration & Customization Guide](#configuration--customization-guide)
 11. [Troubleshooting & FAQs](#troubleshooting--faqs)
 12. [Content Integrity & Compliance Notice](#content-integrity--compliance-notice)
 
@@ -33,13 +28,14 @@ Engineered with React 19, TypeScript, Tailwind CSS, and Vite, specifically optim
 
 ## Project Overview
 
-**BOOSTING BD** specializes in data-driven advertising across Meta's family of apps (Facebook, Instagram, Messenger, Audience Network). Key highlights of this codebase include:
+**BOOSTING BD** provides data-driven advertising across Meta's ecosystem (Facebook, Instagram, Messenger, Audience Network). Key highlights:
 
+- **Multi-Page Dedicated Routes**: Individual, crawlable pages for `/services`, `/why-us`, `/process`, `/pricing`, `/case-studies`, `/faq`, `/contact`, `/privacy`, and `/terms`.
+- **Top Bar Contract**: Clean 3-zone header with 1-line wordmark, whitespace-nowrap navigation links with active state indicator, and single primary CTA.
 - **Strict Ad Spend Transparency**: Explicit separation of agency service retainers from advertising budgets paid directly to Meta.
-- **Top Bar Contract**: Clean 3-zone header with 1-line wordmark, whitespace-nowrap navigation links, and single primary CTA.
 - **Accessible Interactions**: Keyboard-navigable accordions, focus rings, WCAG AA contrast, and reduced-motion support.
-- **Client-Side WhatsApp Pipeline**: Pre-filled WhatsApp routing preserving inquiries without backend server dependencies.
-- **Cloudflare Pages Static Readiness**: Zero runtime server requirements, preconfigured `_headers` and `_redirects`.
+- **Cloudflare Edge Function + WhatsApp Pipeline**: Dual lead capture using native serverless Cloudflare Pages Function (`functions/api/contact.ts`) plus immediate fail-safe 1-click WhatsApp hand-off.
+- **Cloudflare Pages Static Readiness**: Zero runtime Node.js servers needed, preconfigured `_headers` and `_redirects`.
 
 ---
 
@@ -48,10 +44,12 @@ Engineered with React 19, TypeScript, Tailwind CSS, and Vite, specifically optim
 | Layer | Tooling |
 | :--- | :--- |
 | **Framework** | React 19 + TypeScript |
-| **Bundler** | Vite 8 |
+| **Routing** | React Router v7 |
+| **Bundler** | Vite 8 (Modular Vendor Code Splitting) |
 | **Styling** | Tailwind CSS v4 |
 | **Icons** | Lucide React |
-| **Hosting Target** | Cloudflare Pages (Static JAMstack) |
+| **Edge Functions** | Cloudflare Pages Functions (Serverless TypeScript) |
+| **Hosting Target** | Cloudflare Pages |
 | **SEO** | Semantic HTML5, OpenGraph, Twitter Cards, Schema.org JSON-LD |
 
 ---
@@ -60,50 +58,68 @@ Engineered with React 19, TypeScript, Tailwind CSS, and Vite, specifically optim
 
 ```text
 boosting-bd/
+├── functions/
+│   └── api/
+│       └── contact.ts          # Cloudflare Pages serverless edge function (/api/contact)
 ├── public/
+│   ├── images/                 # Production-ready static images
+│   │   ├── hero-meta-ads-dashboard.jpg
+│   │   ├── meta-campaign-strategy.jpg
+│   │   └── ecommerce-growth-mockup.jpg
 │   ├── favicon.svg             # Modern vector brandmark favicon
 │   ├── og-image.svg            # 1200x630 social share card
 │   ├── robots.txt              # Search crawler instructions
-│   ├── sitemap.xml             # XML sitemap with canonical endpoints
+│   ├── sitemap.xml             # XML sitemap with all dedicated page endpoints
 │   ├── _headers                # Cloudflare Pages security & caching headers
 │   └── _redirects              # Cloudflare SPA fallback rule (/* /index.html 200)
 ├── src/
 │   ├── assets/
-│   │   └── images/             # Local high-resolution WebP/JPG images
+│   │   └── images/             # Source photography assets
 │   ├── components/
 │   │   ├── Header.tsx          # Responsive sticky navigation (Top Bar Contract)
 │   │   ├── Footer.tsx          # Comprehensive footer with links & disclaimer
 │   │   ├── SectionHeading.tsx  # Unboxed typographic section titles
-│   │   ├── WhatsAppFloatingButton.tsx # Floating accessible contact widget
-│   │   └── LegalModal.tsx      # Privacy Policy & Terms of Service dialog
+│   │   ├── ScrollToTop.tsx     # Route transition scroll-to-top handler
+│   │   └── WhatsAppFloatingButton.tsx # Floating accessible contact widget
 │   ├── config/
 │   │   └── site.ts             # Central Single Source of Truth
 │   ├── data/
-│   │   ├── navigation.ts       # Main navigation links
+│   │   ├── navigation.ts       # Main navigation routes
 │   │   ├── services.ts         # Service descriptions, outcomes, deliverables
 │   │   ├── pricing.ts          # Transparent retainer tiers & ad budget guidelines
 │   │   ├── portfolio.ts        # Illustrative campaign frameworks & case studies
 │   │   ├── testimonials.ts     # Sample feedback placeholder slots
 │   │   └── faq.ts              # Frequently asked questions for BD businesses
+│   ├── pages/
+│   │   ├── HomePage.tsx        # Agency landing overview
+│   │   ├── ServicesPage.tsx    # Dedicated /services page
+│   │   ├── WhyUsPage.tsx       # Dedicated /why-us comparison page
+│   │   ├── ProcessPage.tsx     # Dedicated /process workflow page
+│   │   ├── PricingPage.tsx     # Dedicated /pricing retainer page
+│   │   ├── CaseStudiesPage.tsx # Dedicated /case-studies portfolio page
+│   │   ├── FAQPage.tsx         # Dedicated /faq knowledge page
+│   │   ├── ContactPage.tsx     # Dedicated /contact inquiry page
+│   │   ├── PrivacyPage.tsx     # Dedicated /privacy policy page
+│   │   └── TermsPage.tsx       # Dedicated /terms of service page
 │   ├── sections/
-│   │   ├── Hero.tsx            # High-impact hero with CTA & proof points
+│   │   ├── Hero.tsx            # Hero section with primary & secondary CTAs
 │   │   ├── ValueStrip.tsx      # 4 core value proposition pillars
-│   │   ├── Services.tsx        # Asymmetric Bento grid of agency capabilities
-│   │   ├── WhyUs.tsx           # Anti-slop reasons to choose BOOSTING BD
+│   │   ├── Services.tsx        # Bento grid of agency capabilities
+│   │   ├── WhyUs.tsx           # Differentiators (zero markup, CAPI precision)
 │   │   ├── Process.tsx         # 4-stage media buying workflow
 │   │   ├── Pricing.tsx         # BDT/USD retainers with fee distinction
-│   │   ├── Portfolio.tsx       # Strategy architectures with image previews
+│   │   ├── Portfolio.tsx       # Strategy architectures with preview cards
 │   │   ├── Testimonials.tsx    # Feedback placeholders
 │   │   ├── FAQ.tsx             # Working accessible accordions
-│   │   └── Contact.tsx         # Validated lead form + 1-click WhatsApp handoff
-│   ├── App.tsx                 # Root application composition
+│   │   └── Contact.tsx         # Validated lead form + API submission + WhatsApp
+│   ├── App.tsx                 # React Router application composition
 │   ├── main.tsx                # Application DOM entry point
 │   └── index.css               # Design tokens, focus rings, and Tailwind CSS
 ├── index.html                  # HTML entry point with meta tags & JSON-LD
 ├── metadata.json               # AI Studio applet metadata
 ├── package.json                # Project dependencies and npm scripts
 ├── tsconfig.json               # TypeScript strict configuration
-├── vite.config.ts              # Vite bundler configuration
+├── vite.config.ts              # Vite bundler configuration with manual code splitting
 └── README.md                   # Complete documentation
 ```
 
@@ -111,12 +127,11 @@ boosting-bd/
 
 ## File Responsibilities
 
-1. **`src/config/site.ts`**: The single source of truth for phone numbers, WhatsApp numbers, email, physical office address, social media links, and default messages. Modifying this updates the entire site.
-2. **`src/data/pricing.ts`**: Contains retainer amounts (BDT & USD), ad budget guidelines, and legal disclosures distinguishing agency management fees from Meta ad charges.
-3. **`src/data/services.ts`**: Modifies or adds agency service offerings, deliverables, and icon associations.
-4. **`src/data/portfolio.ts`**: Manages campaign frameworks and case study descriptions.
-5. **`public/_headers`**: Enforces HTTP security headers (`X-Frame-Options`, `X-Content-Type-Options`) and caching rules in Cloudflare Pages.
-6. **`public/_redirects`**: Ensures single-page app (SPA) URL rewrites resolve to `/index.html` without 404 errors.
+1. **`functions/api/contact.ts`**: Runs on Cloudflare's Edge network automatically when deployed to Cloudflare Pages. Receives JSON form submissions at `/api/contact` and forwards them to optional webhooks or emails with zero Node servers.
+2. **`public/_redirects`**: Crucial Cloudflare Pages rewrite rule (`/* /index.html 200`). Enables deep linking and direct page refreshes for all client-side routes (`/services`, `/pricing`, etc.) without 404 errors.
+3. **`public/_headers`**: Enforces HTTP security headers (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`) and browser cache-control rules.
+4. **`public/images/`**: Houses static image assets directly served by Cloudflare's global CDN.
+5. **`src/config/site.ts`**: The single source of truth for business information (WhatsApp, phone, address, email, social links).
 
 ---
 
@@ -125,7 +140,7 @@ boosting-bd/
 - **Node.js**: Version 18.0.0 or higher (Node 20+ LTS recommended).
 - **npm**: Version 9.0.0 or higher.
 
-Verify your environment by running:
+Verify:
 ```bash
 node -v
 npm -v
@@ -135,87 +150,52 @@ npm -v
 
 ## Local Development
 
-1. Clone or extract the project files into your working folder:
-   ```bash
-   cd boosting-bd
-   ```
-
-2. Install dependencies:
+1. Install dependencies:
    ```bash
    npm install
    ```
 
-3. Launch the Vite local development server:
+2. Start the local development server:
    ```bash
    npm run dev
    ```
 
-4. Open your browser and navigate to `http://localhost:3000`.
+3. Open `http://localhost:3000`.
 
 ---
 
 ## Production Build
 
-To test and produce an optimized static production distribution:
+To run the local production build:
 
 ```bash
 npm run build
 ```
 
-This compiles all TypeScript files and bundles minified CSS and JavaScript into the **`dist/`** directory. All files from `public/` (including `_headers`, `robots.txt`, and `sitemap.xml`) are copied into the root of `dist/`.
-
-To preview the built static bundle locally:
-```bash
-npm run preview
-```
+This compiles TypeScript, optimizes Tailwind CSS, and outputs the minified static site to `dist/`.
 
 ---
 
-## Configuration & Customization Guide
+## Cloudflare Pages Deployment Configuration
 
-### Editing Brand & Contact Details
-Open **`src/config/site.ts`**:
-- **WhatsApp Number**: Update `contact.whatsappNumber` to your international phone digits without plus signs or dashes (e.g. `"8801518961899"`).
-- **Phone Display**: Update `contact.phoneDisplay` (e.g. `"+880 1518 961899"`).
-- **Email**: Update `contact.email` (e.g. `"turjoy144@gmail.com"`).
-- **Address**: Update `contact.address` and `contact.city`.
-- **Social Links**: Update Facebook, Instagram, and LinkedIn page URLs.
+### Exact Cloudflare Pages Settings
 
-### Editing Services
-Open **`src/data/services.ts`**:
-- Add, remove, or modify items in the `servicesData` array.
-- Icons available include: `TrendingUp`, `ShoppingBag`, `Target`, `Cpu`, `RefreshCw`, `BarChart3`.
-
-### Editing Pricing & Retainers
-Open **`src/data/pricing.ts`**:
-- Update `managementFee.bdt` and `managementFee.usd`.
-- Adjust `recommendedAdSpend` or feature inclusions.
-- Note: Always preserve the explicit distinction between Agency Management Fees and direct Meta ad spend.
-
-### Editing Case Studies & Images
-Open **`src/data/portfolio.ts`**:
-- Update industry names, titles, commercial challenges, and execution highlights.
-- Replace image paths with your own assets placed in `src/assets/images/` or `public/images/`.
-
-### Updating SEO Metadata & Domain
-1. In **`src/config/site.ts`**, update `productionUrl` to your live domain (e.g. `https://boostingagencyofficial.site/`).
-2. In **`index.html`**, update:
-   - `<link rel="canonical" href="https://your-domain.com/" />`
-   - `<meta property="og:url" content="https://your-domain.com/" />`
-   - JSON-LD `"url"`, `"telephone"`, and `"address"`.
-3. In **`public/sitemap.xml`** and **`public/robots.txt`**, update the sitemap URLs with your verified domain.
-
----
-
-## Deployment Guide: GitHub & Cloudflare Pages
+| Setting | Value |
+| :--- | :--- |
+| **Framework preset** | `Vite` |
+| **Build command** | `npm run build` |
+| **Build output directory** | `dist` |
+| **Root directory** | `/` (leave empty/default) |
+| **Production branch** | `main` |
+| **Node.js version (optional)** | `20` |
 
 ### Step 1: Pushing Code to GitHub
 
-1. Initialize git in the project root (if not already done):
+1. Initialize git in the project root:
    ```bash
    git init
    git add .
-   git commit -m "feat: initial release of BOOSTING BD agency website"
+   git commit -m "feat: complete Cloudflare Pages deployment ready BOOSTING BD website"
    ```
 
 2. Create a new repository on [GitHub](https://github.com/new) named `boosting-bd`.
@@ -234,54 +214,54 @@ Open **`src/data/portfolio.ts`**:
 ### Step 2: Connecting to Cloudflare Pages
 
 1. Log in to the [Cloudflare Dashboard](https://dash.cloudflare.com/).
-2. In the left navigation, select **Workers & Pages**.
+2. In the sidebar, select **Workers & Pages**.
 3. Click **Create Application**, then choose the **Pages** tab.
-4. Select **Connect to Git** and authorize your GitHub account.
-5. Choose your `boosting-bd` repository.
-6. Configure the build settings:
-   - **Framework preset**: `Vite`
-   - **Build command**: `npm run build`
-   - **Build output directory**: `dist`
-   - **Root directory**: `/` (leave empty or default)
-7. Click **Save and Deploy**. Cloudflare Pages will build the site and provide a free `*.pages.dev` preview URL.
+4. Select **Connect to Git** and pick your `boosting-bd` repository.
+5. Apply the build settings specified above:
+   - Framework preset: `Vite`
+   - Build command: `npm run build`
+   - Build output directory: `dist`
+6. Click **Save and Deploy**. Cloudflare Pages will build the site and provide a free `*.pages.dev` URL.
 
 ---
 
-### Step 3: Setting Up a Custom Domain
+### Step 3: Custom Domain Setup
 
-1. In your Cloudflare Pages project, go to **Custom domains**.
+1. In your Cloudflare Pages project, select **Custom domains**.
 2. Click **Set up a custom domain**.
-3. Enter your domain (e.g. `boostingagencyofficial.site` or `www.boostingbd.com`).
-4. If your domain's DNS is managed on Cloudflare, DNS records (CNAME) will be created automatically.
-5. If your domain is registered elsewhere (e.g. Namecheap, GoDaddy), add the CNAME record indicated by Cloudflare to your domain registrar's DNS settings.
-6. Cloudflare automatically issues and manages free SSL/TLS certificates.
+3. Enter your domain (e.g. `boostingagencyofficial.site`).
+4. If your DNS is managed on Cloudflare, the CNAME record is created automatically. If external, add the CNAME record indicated by Cloudflare to your registrar.
+5. Free SSL certificates are provisioned automatically.
 
 ---
 
-## Forms & WhatsApp Integration Details
+## Serverless Edge Function (`/api/contact`)
 
-To adhere strictly to static architecture and prevent silent lead drop-off:
-- The inquiry form validates user input (name, email/phone format, campaign budget, and notes).
-- If no server endpoint is attached, the form honestly explains that it is running in static mode and provides a **1-click WhatsApp handoff**.
-- Clicking this opens WhatsApp with a cleanly formatted text message pre-filled with all form fields.
+When deployed on Cloudflare Pages, Cloudflare automatically mounts `/functions/api/contact.ts` as a serverless edge endpoint at `/api/contact`.
 
-### Optional: Connecting a Real Form Endpoint
-If you wish to receive form submissions via email or database in the future:
-1. **Option A (Cloudflare Pages Function)**: Create `functions/api/contact.ts` in the project root to handle POST requests using Cloudflare's built-in serverless execution.
-2. **Option B (Third-Party Form Provider)**: Connect endpoints like Formspree, Basin, or Formkeep by updating the `handleSubmit` method in `src/sections/Contact.tsx`.
+- Accepts `POST` requests with JSON payload.
+- Validates parameters (name, email, phone, ad budget, message).
+- **Optional Webhook Alert**: In your Cloudflare Pages Dashboard, navigate to **Settings > Environment variables** and add `WEBHOOK_URL` (e.g. Discord, Slack, or Zapier webhook). Inbound lead notifications will be forwarded automatically!
+
+---
+
+## Configuration & Customization Guide
+
+- **Brand & Contacts**: Edit `src/config/site.ts` to update the WhatsApp number, phone, email, address, and social URLs across the entire application.
+- **Services**: Edit `src/data/services.ts`.
+- **Pricing & Retainers**: Edit `src/data/pricing.ts`.
+- **Case Studies**: Edit `src/data/portfolio.ts`.
+- **FAQ**: Edit `src/data/faq.ts`.
 
 ---
 
 ## Troubleshooting & FAQs
 
-### Error: "Directory not found" or "Build output directory error" on Cloudflare
-- Ensure the **Build output directory** in Cloudflare Pages is set to `dist` (all lowercase).
+### Error: "Page not found (404)" on refreshing `/services` or `/pricing`
+- Caused when static hosts lack an SPA fallback. This project includes `public/_redirects` with `/* /index.html 200`, which solves this automatically on Cloudflare Pages.
 
-### Error: "Cannot find module" or Case Sensitivity Issues
-- Linux servers (such as Cloudflare's build runners) are strictly case-sensitive. Verify that all component imports match the exact file naming on disk (e.g. `src/sections/Hero.tsx`, not `src/sections/hero.tsx`).
-
-### Error: ZIP download has nested folders
-- When extracting ZIP archives, ensure you do not commit an outer container folder. Your repository root must contain `package.json`, `index.html`, and `vite.config.ts`.
+### Error: Images not showing up
+- All images are placed in `public/images/` and copied to `dist/images/` during build. They are referenced using root-relative paths (`/images/hero-meta-ads-dashboard.jpg`).
 
 ---
 

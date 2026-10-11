@@ -89,7 +89,7 @@ export const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
           <div className="lg:col-span-5 relative">
             <div className="relative rounded-2xl overflow-hidden border border-slate-800 bg-slate-900 shadow-2xl">
               <img
-                src="/src/assets/images/hero_meta_ads_dashboard_1791719532130.jpg"
+                src="/images/hero-meta-ads-dashboard.jpg"
                 alt="BOOSTING BD Meta Ads Performance Analytics Center"
                 width={720}
                 height={405}

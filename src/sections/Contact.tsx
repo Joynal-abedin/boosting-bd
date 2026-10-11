@@ -41,7 +41,9 @@ export const Contact: React.FC = () => {
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [apiDelivered, setApiDelivered] = useState(false);
 
   const validate = (): boolean => {
     const errs: FormErrors = {};
@@ -70,10 +72,34 @@ export const Contact: React.FC = () => {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    setIsSubmitted(true);
+
+    setIsSubmitting(true);
+
+    try {
+      // Attempt sending to Cloudflare Pages /api/contact Function
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (res.ok) {
+        setApiDelivered(true);
+      } else {
+        setApiDelivered(false);
+      }
+    } catch {
+      // If deployed in static mode or /api/contact is unavailable, fallback gracefully to WhatsApp
+      setApiDelivered(false);
+    } finally {
+      setIsSubmitting(false);
+      setIsSubmitted(true);
+    }
   };
 
   // Generate WhatsApp pre-filled text with all client form values
@@ -190,20 +216,26 @@ Here is my inquiry:
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-white">
-                        Inquiry Form Validated!
+                        {apiDelivered
+                          ? "Inquiry Received via Cloudflare API!"
+                          : "Inquiry Form Validated & Ready!"}
                       </h4>
                       <p className="text-xs text-slate-400">
-                        Client-side validation complete.
+                        {apiDelivered
+                          ? "Your parameters have been logged."
+                          : "Client validation complete."}
                       </p>
                     </div>
                   </div>
 
                   <div className="p-4 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300 space-y-2">
                     <p className="font-semibold text-emerald-400">
-                      Honest Integration Notice:
+                      {apiDelivered ? "Direct Priority Line:" : "Instant WhatsApp Dispatch:"}
                     </p>
                     <p className="text-slate-400 leading-relaxed">
-                      This site operates as a static Cloudflare Pages app. To avoid silent message loss without a configured server backend, click the button below to dispatch your validated form details directly to our WhatsApp team in 1 click:
+                      {apiDelivered
+                        ? "Your details were delivered to our Cloudflare edge endpoint. For immediate response during BST hours, click below to start a direct WhatsApp conversation with our strategist:"
+                        : "To ensure immediate review with zero email delay, click below to dispatch your pre-filled inquiry details directly to our WhatsApp media team in 1 click:"}
                     </p>
                   </div>
 
@@ -219,7 +251,10 @@ Here is my inquiry:
 
                   <button
                     type="button"
-                    onClick={() => setIsSubmitted(false)}
+                    onClick={() => {
+                      setIsSubmitted(false);
+                      setApiDelivered(false);
+                    }}
                     className="w-full py-2 text-xs text-slate-400 hover:text-white transition-colors"
                   >
                     ← Edit Form Details
@@ -435,10 +470,11 @@ Here is my inquiry:
                   <div className="pt-2">
                     <button
                       type="submit"
-                      className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 bg-emerald-400 hover:bg-emerald-300 active:bg-emerald-500 text-slate-950 font-bold text-sm rounded-xl transition-colors shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
+                      disabled={isSubmitting}
+                      className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 bg-emerald-400 hover:bg-emerald-300 active:bg-emerald-500 disabled:opacity-60 disabled:cursor-not-allowed text-slate-950 font-bold text-sm rounded-xl transition-colors shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
                     >
                       <Send className="w-4 h-4" />
-                      <span>Validate &amp; Send Inquiry</span>
+                      <span>{isSubmitting ? "Processing..." : "Validate & Send Inquiry"}</span>
                     </button>
                   </div>
                 </form>
